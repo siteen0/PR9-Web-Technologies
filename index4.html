@@ -1,0 +1,68 @@
+
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<title>Інтерактивне переміщення</title>
+<style>
+body{text-align:center;font-family:Arial;background:#eee}
+button{padding:12px 25px;background:blue;color:white;border:0;border-radius:8px;cursor:pointer}
+#area{width:700px;height:400px;border:3px solid black;background:white;margin:25px auto;position:relative}
+.object{width:80px;height:80px;position:absolute;border-radius:10px;cursor:grab;touch-action:none}
+.one{background:red;left:40px;top:40px}
+.two{background:blue;left:170px;top:40px}
+.three{background:green;left:300px;top:40px}
+</style>
+</head>
+<body>
+<h1>Інтерактивне переміщення об'єктів</h1>
+<p>Кількість переміщень: <span id="counter">0</span></p>
+<button onclick="resetObjects()">Повернути об'єкти</button>
+<div id="area">
+<div class="object one"></div>
+<div class="object two"></div>
+<div class="object three"></div>
+</div>
+<script>
+const area=document.getElementById("area");
+const objects=document.querySelectorAll(".object");
+const start=[
+{left:40,top:40},
+{left:170,top:40},
+{left:300,top:40}
+];
+let count=0;
+objects.forEach(obj=>{
+obj.addEventListener("pointerdown",e=>{
+e.preventDefault();
+const r=obj.getBoundingClientRect();
+const dx=e.clientX-r.left,dy=e.clientY-r.top;
+obj.setPointerCapture(e.pointerId);
+function move(e){
+const a=area.getBoundingClientRect();
+let x=e.clientX-a.left-dx;
+let y=e.clientY-a.top-dy;
+obj.style.left=Math.max(0,Math.min(x,area.clientWidth-obj.offsetWidth))+"px";
+obj.style.top=Math.max(0,Math.min(y,area.clientHeight-obj.offsetHeight))+"px";
+}
+function stop(){
+obj.removeEventListener("pointermove",move);
+count++;
+document.getElementById("counter").textContent=count;
+}
+obj.addEventListener("pointermove",move);
+obj.addEventListener("pointerup",stop,{once:true});
+obj.addEventListener("pointercancel",stop,{once:true});
+});
+});
+function resetObjects(){
+objects.forEach((obj,i)=>{
+obj.style.left=start[i].left+"px";
+obj.style.top=start[i].top+"px";
+});
+count=0;
+document.getElementById("counter").textContent=count;
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,49 @@
+
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<title>Обмеження переміщення</title>
+<style>
+body{text-align:center;font-family:Arial;background:#eee}
+#area{width:700px;height:400px;border:3px solid black;background:white;margin:30px auto;position:relative}
+.object{width:85px;height:85px;position:absolute;border-radius:12px;cursor:grab;touch-action:none}
+.one{background:purple;left:30px;top:30px}
+.two{background:orange;left:160px;top:30px}
+.three{background:teal;left:290px;top:30px}
+</style>
+</head>
+<body>
+<h1>Переміщення в межах робочої області</h1>
+<p>Об'єкти не можуть виходити за межі поля.</p>
+<div id="area">
+<div class="object one"></div>
+<div class="object two"></div>
+<div class="object three"></div>
+</div>
+<script>
+const area=document.getElementById("area");
+document.querySelectorAll(".object").forEach(obj=>{
+obj.addEventListener("pointerdown",e=>{
+e.preventDefault();
+const r=obj.getBoundingClientRect();
+const dx=e.clientX-r.left,dy=e.clientY-r.top;
+obj.setPointerCapture(e.pointerId);
+function move(e){
+const a=area.getBoundingClientRect();
+let x=e.clientX-a.left-dx;
+let y=e.clientY-a.top-dy;
+x=Math.max(0,Math.min(x,area.clientWidth-obj.offsetWidth));
+y=Math.max(0,Math.min(y,area.clientHeight-obj.offsetHeight));
+obj.style.left=x+"px";
+obj.style.top=y+"px";
+}
+function stop(){obj.removeEventListener("pointermove",move)}
+obj.addEventListener("pointermove",move);
+obj.addEventListener("pointerup",stop,{once:true});
+obj.addEventListener("pointercancel",stop,{once:true});
+});
+});
+</script>
+</body>
+</html>
